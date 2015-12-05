@@ -1,0 +1,159 @@
+#include <iostream>
+#include <type_traits>
+#include <set>
+#include <map>
+#include <unordered_map>
+#include <tuple>
+#include <utility>
+
+struct delims{
+    // Set specialisation
+    template<typename T> static std::string get_start_delim(std::set<T>) { return std::string("{"); };
+    template<typename T> static std::string get_elem_delim(std::set<T>) { return std::string(", "); };
+    template<typename T> static std::string get_end_delim(std::set<T>) { return std::string("}"); };
+
+    // Map delimiters
+    template<typename T1, typename T2> static std::string get_start_delim(std::map<T1, T2>) { return std::string("{"); };
+    template<typename T1, typename T2> static std::string get_elem_delim(std::map<T1, T2>) { return std::string(", "); };
+    template<typename T1, typename T2> static std::string get_end_delim(std::map<T1, T2>) { return std::string("}"); };
+
+    // Unordered map delimiters
+    template<typename T1, typename T2> static std::string get_start_delim(std::unordered_map<T1, T2>) { return std::string("{"); };
+    template<typename T1, typename T2> static std::string get_elem_delim(std::unordered_map<T1, T2>) { return std::string(", "); };
+    template<typename T1, typename T2> static std::string get_end_delim(std::unordered_map<T1, T2>) { return std::string("}"); };
+
+    // Pair delimiters
+    template<typename T1, typename T2> static std::string get_start_delim(std::pair<T1, T2>) { return std::string("("); };
+    template<typename T1, typename T2> static std::string get_elem_delim(std::pair<T1, T2>) { return std::string(", "); };
+    template<typename T1, typename T2> static std::string get_end_delim(std::pair<T1, T2>) { return std::string(")"); };
+
+    // Tuple delimiters
+    // Same as pair since a tuple is a generalised pair
+    template<typename ...Targs> static std::string get_start_delim(std::tuple<Targs...>) { return std::string("("); };
+    template<typename ...Targs> static std::string get_elem_delim(std::tuple<Targs...>) { return std::string(", "); };
+    template<typename ...Targs> static std::string get_end_delim(std::tuple<Targs...>) { return std::string(")"); };
+
+    // Default delimiters
+    template<typename T> static std::string get_start_delim(T) { return std::string("["); };
+    template<typename T> static std::string get_elem_delim(T) { return std::string(", "); };
+    template<typename T> static std::string get_end_delim(T) { return std::string("]"); };
+
+};
+
+template <typename T>
+struct is_tuple{
+    static const bool value = false;
+};
+
+template <typename ...Targs>
+struct is_tuple<std::tuple<Targs...>>{
+    static const bool value = true;
+};
+
+// Helper struct to determine
+// whether a type contains an iterator
+// member / type
+template <typename T>
+struct has_const_iterator_helper{
+
+    template <typename C>
+    static std::true_type f(typename C::const_iterator*);
+
+    template <typename C>
+    static std::false_type f(...);
+
+    typedef decltype(f<T>(0)) type;
+};
+
+template <typename T>
+typename has_const_iterator_helper<T>::type
+return_has_const_iterator(T& val) {
+    typename has_const_iterator_helper<T>::type ret_val;
+    return ret_val;
+}
+
+template <typename T>
+void print_iterator_helper(std::false_type, std::ostream& os, T& cont) {
+    os << cont;
+}
+
+template <typename TChar>
+void print_iterator_helper(std::true_type, std::ostream& os, std::basic_string<TChar> cont) {
+    os << "\"" << cont << "\"";
+}
+
+void print_iterator_helper(std::false_type, std::ostream& os, const char* cont) {
+    os << "\"" << cont << "\"";
+}
+// Base case - element is not a container.
+// Just print it directly
+
+// String specialisation - prints quotes around string
+
+template <size_t I, typename T>
+typename std::enable_if<(!is_tuple<T>::value), void>::type
+print_tuple(std::ostream& os, T& cont) {
+    print_iterator_helper(return_has_const_iterator(cont), os, cont);
+}
+
+template <size_t I, typename ...Targs>
+typename std::enable_if<(I == sizeof...(Targs)), void>::type
+print_tuple(std::ostream& os, std::tuple<Targs ...>& tup) {
+    os << delims::get_end_delim(tup);
+}
+
+template <size_t I, typename ...Targs>
+typename std::enable_if<(I < sizeof...(Targs) && I != 0), void>::type
+print_tuple(std::ostream& os, std::tuple<Targs ...>& tup) {
+    os << delims::get_elem_delim(tup);
+    auto val = std::get<I>(tup);
+    print_tuple<I>(os, val);
+    print_tuple<I+1>(os, tup);
+}
+
+template <size_t I, typename ...Targs>
+typename std::enable_if<(I == 0), void>::type
+print_tuple(std::ostream& os, std::tuple<Targs ...>& tup) {
+    os << delims::get_start_delim(tup);
+    auto val = std::get<I>(tup);
+    print_tuple<I>(os, val);
+    print_tuple<I+1>(os, tup);
+}
+
+// Generic print function
+template <typename T1, typename T2>
+void print_iterator_helper(std::false_type, std::ostream& os, std::pair<T1, T2> &cont) {
+    os << delims::get_start_delim(cont);
+    print_iterator_helper(return_has_const_iterator(cont.first), os, cont.first);
+    os << delims::get_elem_delim(cont);
+    print_iterator_helper(return_has_const_iterator(cont.second), os, cont.second);
+    os << delims::get_end_delim(cont);
+}
+
+
+template <typename ...Targs>
+void print_iterator_helper(std::false_type, std::ostream& os, std::tuple<Targs...> &cont) {
+    print_tuple<0>(os, cont);
+}
+// to print containers
+// Recursive to handle nested containers
+template <typename T>
+void print_iterator_helper(std::true_type, std::ostream& os, T& cont) {
+    os << delims::get_start_delim(cont);
+    if (!cont.empty()) {
+        auto it = cont.begin();
+        print_iterator_helper(return_has_const_iterator(*it), os, *it);
+        it++;
+        for (; it != cont.cend() ; it++) {
+            os << delims::get_elem_delim(cont);
+            print_iterator_helper(return_has_const_iterator(*it), os, *it);
+        }
+    }
+    os << delims::get_end_delim(cont);
+}
+
+// User-facing function
+template <typename T>
+void print(std::ostream& os, T& container) {
+    print_iterator_helper(return_has_const_iterator(container), os, container);
+}
