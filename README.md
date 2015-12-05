@@ -15,7 +15,7 @@ Use CMake-GUI to compile on windows using your compiler of choice.
 
 Simply include the header file ```easyprint``` and use the implemented print function to print your containers. All containers that contain a ```const_iterator``` are supported. ```std::tuple``` is also supported. The content of the container can be printed to any ```std::ostream```.
 
-Arbitrary nested containers are also supported, with the exception of tuples of non-trivial types.
+Arbitrary nested containers are also supported, with the exception of tuples of non-trivial types. Nested tuples are allowed, however.
 
 #### Example:
 

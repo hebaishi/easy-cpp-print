@@ -85,11 +85,8 @@ void print_iterator_helper(std::true_type, std::ostream& os, std::basic_string<T
 void print_iterator_helper(std::false_type, std::ostream& os, const char* cont) {
     os << "\"" << cont << "\"";
 }
-// Base case - element is not a container.
-// Just print it directly
 
-// String specialisation - prints quotes around string
-
+// Functions to recursively print tuples
 template <size_t I, typename T>
 typename std::enable_if<(!is_tuple<T>::value), void>::type
 print_tuple(std::ostream& os, T& cont) {
@@ -120,7 +117,7 @@ print_tuple(std::ostream& os, std::tuple<Targs ...>& tup) {
     print_tuple<I+1>(os, tup);
 }
 
-// Generic print function
+// Pair specialisation
 template <typename T1, typename T2>
 void print_iterator_helper(std::false_type, std::ostream& os, std::pair<T1, T2> &cont) {
     os << delims::get_start_delim(cont);
@@ -130,13 +127,15 @@ void print_iterator_helper(std::false_type, std::ostream& os, std::pair<T1, T2> 
     os << delims::get_end_delim(cont);
 }
 
-
+// Specialisation for tuples
+// Passes control to tuple printing
+// functions
 template <typename ...Targs>
 void print_iterator_helper(std::false_type, std::ostream& os, std::tuple<Targs...> &cont) {
     print_tuple<0>(os, cont);
 }
-// to print containers
-// Recursive to handle nested containers
+
+// Recursive function to print iterators
 template <typename T>
 void print_iterator_helper(std::true_type, std::ostream& os, T& cont) {
     os << delims::get_start_delim(cont);
