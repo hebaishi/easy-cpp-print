@@ -74,36 +74,31 @@ return_has_const_iterator(T& val) {
 }
 
 template <typename T, typename DELIMITER>
-void print_iterator_helper(std::false_type, std::ostream& os, T& cont, DELIMITER &delim) {
+void print_iterator_helper(std::false_type, std::ostream& os, const T& cont, DELIMITER &delim) {
     os << cont;
 }
 
 template <typename TChar, typename DELIMITER>
-void print_iterator_helper(std::true_type, std::ostream& os, std::basic_string<TChar> cont, DELIMITER &delim) {
-    os << "\"" << cont << "\"";
-}
-
-template <typename TChar, typename DELIMITER>
-void print_iterator_helper(std::false_type, std::ostream& os, const char* cont, DELIMITER &delim) {
+void print_iterator_helper(std::true_type, std::ostream& os, const std::basic_string<TChar>& cont, DELIMITER &delim) {
     os << "\"" << cont << "\"";
 }
 
 // Functions to recursively print tuples
 template <size_t I, typename T, typename DELIMITER>
 typename std::enable_if<(!is_tuple<T>::value), void>::type
-print_tuple(std::ostream& os, T& cont, DELIMITER &delim) {
+print_tuple(std::ostream& os, const T& cont, DELIMITER &delim) {
     print_iterator_helper(return_has_const_iterator(cont), os, cont, delim);
 }
 
 template <size_t I, typename ...Targs, typename DELIMITER>
 typename std::enable_if<(I == sizeof...(Targs)), void>::type
-print_tuple(std::ostream& os, std::tuple<Targs ...>& tup, DELIMITER &delim) {
+print_tuple(std::ostream& os, const std::tuple<Targs ...>& tup, DELIMITER &delim) {
     os << delim.get_end_delim(tup);
 }
 
 template <size_t I, typename ...Targs, typename DELIMITER>
 typename std::enable_if<(I < sizeof...(Targs) && I != 0), void>::type
-print_tuple(std::ostream& os, std::tuple<Targs ...>& tup, DELIMITER &delim) {
+print_tuple(std::ostream& os, const std::tuple<Targs ...>& tup, DELIMITER &delim) {
     os << delim.get_elem_delim(tup);
     auto val = std::get<I>(tup);
     print_tuple<I>(os, val, delim);
@@ -112,7 +107,7 @@ print_tuple(std::ostream& os, std::tuple<Targs ...>& tup, DELIMITER &delim) {
 
 template <size_t I, typename ...Targs, typename DELIMITER>
 typename std::enable_if<(I == 0), void>::type
-print_tuple(std::ostream& os, std::tuple<Targs ...>& tup, DELIMITER &delim) {
+print_tuple(std::ostream& os, const std::tuple<Targs ...>& tup, DELIMITER &delim) {
     os << delim.get_start_delim(tup);
     auto val = std::get<I>(tup);
     print_tuple<I>(os, val, delim);
@@ -121,7 +116,7 @@ print_tuple(std::ostream& os, std::tuple<Targs ...>& tup, DELIMITER &delim) {
 
 // Pair specialisation
 template <typename T1, typename T2, typename DELIMITER>
-void print_iterator_helper(std::false_type, std::ostream& os, std::pair<T1, T2> &cont, DELIMITER &delim) {
+void print_iterator_helper(std::false_type, std::ostream& os, const std::pair<T1, T2> &cont, DELIMITER &delim) {
     os << delim.get_start_delim(cont);
     print_iterator_helper(return_has_const_iterator(cont.first), os, cont.first, delim);
     os << delim.get_elem_delim(cont);
@@ -133,13 +128,13 @@ void print_iterator_helper(std::false_type, std::ostream& os, std::pair<T1, T2> 
 // Passes control to tuple printing
 // functions
 template <typename ...Targs, typename DELIMITER>
-void print_iterator_helper(std::false_type, std::ostream& os, std::tuple<Targs...> &cont, DELIMITER &delim) {
+void print_iterator_helper(std::false_type, std::ostream& os, const std::tuple<Targs...> &cont, DELIMITER &delim) {
     print_tuple<0>(os, cont, delim);
 }
 
 // Recursive function to print iterators
 template <typename T, typename DELIMITER>
-void print_iterator_helper(std::true_type, std::ostream& os, T& cont, DELIMITER &delim) {
+void print_iterator_helper(std::true_type, std::ostream& os, const T& cont, DELIMITER &delim) {
     os << delim.get_start_delim(cont);
     if (!cont.empty()) {
         auto it = cont.begin();
@@ -155,12 +150,12 @@ void print_iterator_helper(std::true_type, std::ostream& os, T& cont, DELIMITER 
 
 // User-facing functions
 template <typename T>
-void print(std::ostream& os, T& container) {
+void print(std::ostream& os, const T& container) {
     default_delimiter delim;
     print_iterator_helper(return_has_const_iterator(container), os, container, delim);
 }
 
 template <typename T, typename DELIMITER>
-void print(std::ostream& os, T& container, DELIMITER &delim) {
+void print(std::ostream& os, const T& container, DELIMITER &delim) {
     print_iterator_helper(return_has_const_iterator(container), os, container, delim);
 }
