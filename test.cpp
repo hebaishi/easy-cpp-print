@@ -38,6 +38,9 @@ int main() {
     auto medium_tuple = make_tuple(2, 3.4, "Hello", 5.6, "World", 7);
     std::cerr << "medium_tuple = "; print(std::cerr, medium_tuple); std::cerr << std::endl;
     auto long_tuple = make_tuple(2, 3.4, "Hello", 5.6, "World", 7,2, 3.4, "Hello", 5.6, "World", 7,2, 3.4, "Hello", 5.6, "World", 7);
+    auto nested_tuple = make_tuple(1, make_tuple(2,3,4),5,6);
+    std::cerr << "Nested tuple = ";print(std::cerr, nested_tuple); std::cerr << std::endl;
+
     std::cerr << "long_tuple = "; print(std::cerr, long_tuple); std::cerr << std::endl;
 
     // Testing with complex nested types
@@ -49,6 +52,5 @@ int main() {
     vector <tuple <int, float>> int_float_vec_tuple = {t, t};
     std::cerr << "int_float_vec_tuple = "; print(std::cerr, int_float_vec_tuple); std::cerr << std::endl;
     vector <int> v_t = {1,2,3};
-
     return 0;
 }

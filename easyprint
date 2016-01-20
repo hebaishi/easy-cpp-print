@@ -6,39 +6,37 @@
 #include <tuple>
 #include <utility>
 
+struct FIRST_DELIMITER{};
+struct ELEMENT_DELIMITER{};
+struct LAST_DELIMITER{};
+
+template<size_t I> struct tuple_delimiter_type{typedef ELEMENT_DELIMITER type;};
+template<> struct tuple_delimiter_type<0>{typedef FIRST_DELIMITER type;};
+
 struct default_delimiter{
+    template<typename T> static const char* get_start_delim(std::set<T>) { return "{"; };
+    template<typename T> static const char* get_elem_delim(std::set<T>) { return ", "; };
+    template<typename T> static const char* get_end_delim(std::set<T>) { return "}"; };
 
-    // Set specialisation
-    template<typename T> static std::string get_start_delim(std::set<T>) { return std::string("{"); };
-    template<typename T> static std::string get_elem_delim(std::set<T>) { return std::string(", "); };
-    template<typename T> static std::string get_end_delim(std::set<T>) { return std::string("}"); };
+    template<typename T1, typename T2> static const char* get_start_delim(std::map<T1, T2>) { return "{"; };
+    template<typename T1, typename T2> static const char* get_elem_delim(std::map<T1, T2>) { return ", "; };
+    template<typename T1, typename T2> static const char* get_end_delim(std::map<T1, T2>) { return "}"; };
 
-    // Map delimiters
-    template<typename T1, typename T2> static std::string get_start_delim(std::map<T1, T2>) { return std::string("{"); };
-    template<typename T1, typename T2> static std::string get_elem_delim(std::map<T1, T2>) { return std::string(", "); };
-    template<typename T1, typename T2> static std::string get_end_delim(std::map<T1, T2>) { return std::string("}"); };
+    template<typename T1, typename T2> static const char* get_start_delim(std::unordered_map<T1, T2>) { return "{"; };
+    template<typename T1, typename T2> static const char* get_elem_delim(std::unordered_map<T1, T2>) { return ", "; };
+    template<typename T1, typename T2> static const char* get_end_delim(std::unordered_map<T1, T2>) { return "}"; };
 
-    // Unordered map delimiters
-    template<typename T1, typename T2> static std::string get_start_delim(std::unordered_map<T1, T2>) { return std::string("{"); };
-    template<typename T1, typename T2> static std::string get_elem_delim(std::unordered_map<T1, T2>) { return std::string(", "); };
-    template<typename T1, typename T2> static std::string get_end_delim(std::unordered_map<T1, T2>) { return std::string("}"); };
+    template<typename T1, typename T2> static const char* get_start_delim(std::pair<T1, T2>) { return "("; };
+    template<typename T1, typename T2> static const char* get_elem_delim(std::pair<T1, T2>) { return ", "; };
+    template<typename T1, typename T2> static const char* get_end_delim(std::pair<T1, T2>) { return ")"; };
 
-    // Pair delimiters
-    template<typename T1, typename T2> static std::string get_start_delim(std::pair<T1, T2>) { return std::string("("); };
-    template<typename T1, typename T2> static std::string get_elem_delim(std::pair<T1, T2>) { return std::string(", "); };
-    template<typename T1, typename T2> static std::string get_end_delim(std::pair<T1, T2>) { return std::string(")"); };
+    static const char* get_tuple_delim(FIRST_DELIMITER) {return "("; };
+    static const char* get_tuple_delim(ELEMENT_DELIMITER) {return ", "; };
+    static const char* get_tuple_delim(LAST_DELIMITER) {return ")"; };
 
-    // Tuple delimiters
-    // Same as pair since a tuple is a generalised pair
-    template<typename ...Targs> static std::string get_start_delim(std::tuple<Targs...>) { return std::string("("); };
-    template<typename ...Targs> static std::string get_elem_delim(std::tuple<Targs...>) { return std::string(", "); };
-    template<typename ...Targs> static std::string get_end_delim(std::tuple<Targs...>) { return std::string(")"); };
-
-    // Default delimiters
-    template<typename T> static std::string get_start_delim(T) { return std::string("["); };
-    template<typename T> static std::string get_elem_delim(T) { return std::string(", "); };
-    template<typename T> static std::string get_end_delim(T) { return std::string("]"); };
-
+    template<typename T> static const char* get_start_delim(T) { return "["; };
+    template<typename T> static const char* get_elem_delim(T) { return ", "; };
+    template<typename T> static const char* get_end_delim(T) { return "]"; };
 };
 
 template <typename T>
@@ -78,6 +76,11 @@ void print_iterator_helper(std::false_type, std::ostream& os, const T& cont, DEL
     os << cont;
 }
 
+template <typename DELIMITER>
+void print_iterator_helper(std::false_type, std::ostream& os, const char * cont, DELIMITER &delim) {
+    os << "\"" << cont << "\"";
+}
+
 template <typename TChar, typename DELIMITER>
 void print_iterator_helper(std::true_type, std::ostream& os, const std::basic_string<TChar>& cont, DELIMITER &delim) {
     os << "\"" << cont << "\"";
@@ -93,24 +96,17 @@ print_tuple(std::ostream& os, const T& cont, DELIMITER &delim) {
 template <size_t I, typename ...Targs, typename DELIMITER>
 typename std::enable_if<(I == sizeof...(Targs)), void>::type
 print_tuple(std::ostream& os, const std::tuple<Targs ...>& tup, DELIMITER &delim) {
-    os << delim.get_end_delim(tup);
+    LAST_DELIMITER LAST;
+    os << delim.get_tuple_delim(LAST);
 }
 
 template <size_t I, typename ...Targs, typename DELIMITER>
-typename std::enable_if<(I < sizeof...(Targs) && I != 0), void>::type
+typename std::enable_if<(I < sizeof...(Targs)), void>::type
 print_tuple(std::ostream& os, const std::tuple<Targs ...>& tup, DELIMITER &delim) {
-    os << delim.get_elem_delim(tup);
+    typename tuple_delimiter_type<I>::type PARAM;
+    os << delim.get_tuple_delim(PARAM);
     auto val = std::get<I>(tup);
-    print_tuple<I>(os, val, delim);
-    print_tuple<I+1>(os, tup, delim);
-}
-
-template <size_t I, typename ...Targs, typename DELIMITER>
-typename std::enable_if<(I == 0), void>::type
-print_tuple(std::ostream& os, const std::tuple<Targs ...>& tup, DELIMITER &delim) {
-    os << delim.get_start_delim(tup);
-    auto val = std::get<I>(tup);
-    print_tuple<I>(os, val, delim);
+    print_tuple<0>(os, val, delim);
     print_tuple<I+1>(os, tup, delim);
 }
 
