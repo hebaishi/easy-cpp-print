@@ -146,12 +146,14 @@ void print_iterator_helper(std::true_type, std::ostream& os, const T& cont, DELI
 
 // User-facing functions
 template <typename T>
-void print(std::ostream& os, const T& container) {
+void print_line(std::ostream& os, const T& container) {
     default_delimiter delim;
     print_iterator_helper(return_has_const_iterator(container), os, container, delim);
+    os << std::endl;
 }
 
 template <typename T, typename DELIMITER>
-void print(std::ostream& os, const T& container, DELIMITER &delim) {
+void print_line(std::ostream& os, const T& container, DELIMITER &delim) {
     print_iterator_helper(return_has_const_iterator(container), os, container, delim);
+    os << std::endl;
 }
