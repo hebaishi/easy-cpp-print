@@ -1,4 +1,6 @@
 ## easyprint
+[![Build Status](https://travis-ci.org/hebaishi/easy-cpp-print.svg?branch=master)](https://travis-ci.org/hebaishi/easy-cpp-print)
+
 C++11 header to print STL containers. All containers that contain a ```const_iterator``` are supported, as well as ```std::tuple```. Simply include the header file, and use the implemented print function to print your containers:
 
 CMake is required to compile the supplied test code.
