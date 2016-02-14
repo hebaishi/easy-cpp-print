@@ -1,7 +1,20 @@
-cmake_minimum_required(VERSION 2.6)
-project(easyprint_test)
+cmake_minimum_required (VERSION 2.6)
+project (easyprint_demo)
 
-if (UNIX)
-set(CMAKE_CXX_FLAGS "-Wall -O3 -std=c++0x")
+# add the binary tree to the search path for include files
+# so that we will find TutorialConfig.h
+include_directories("${PROJECT_SOURCE_DIR}/include")
+
+set( SRC_DIR "${PROJECT_SOURCE_DIR}/src" )
+
+SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -std=c++11" )
+
+option(BUILD_TESTS "Build Unit Testing Binaries" OFF)
+
+if (BUILD_TESTS)
+  add_subdirectory(tests)
 endif()
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/test.cpp)
+
+# add the executable
+add_executable(${PROJECT_NAME} ${SRC_DIR}/demo.cpp )
+install (TARGETS ${PROJECT_NAME} DESTINATION bin)
