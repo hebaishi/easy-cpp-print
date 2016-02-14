@@ -7,7 +7,7 @@ before_install:
 - sudo apt-get install -qq libboost-test-dev
 install:
 - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-- if [ "$CXX" = "clang" ]; then export CXX="clang" CC="clang"; fi
+- if [ "$CXX" = "clang" ]; then export CXX="clang++" CC="clang"; fi
 addons:
   apt:
     sources:
