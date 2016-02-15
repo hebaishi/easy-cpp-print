@@ -7,7 +7,7 @@ CMake is required to compile the supplied test code.
 
 #### Linux Compilation:
 ```bash
-mkdir bin && cd bin && cmake .. && make && ./easyprint_test
+mkdir bin && cd bin && cmake .. && make && ./easyprint_demo
 ```
 
 #### Windows Compilation
