@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE Utility_function_tests
+#define BOOST_TEST_MODULE Easyprint_default_tests
 #include <boost/test/unit_test.hpp>
 
 #include <unordered_map>
