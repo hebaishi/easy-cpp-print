@@ -153,7 +153,8 @@ void print_line(std::ostream& os, const T& container) {
 }
 
 template <typename T, typename DELIMITER>
-void print_line(std::ostream& os, const T& container, DELIMITER &delim) {
+void print_line(std::ostream& os, const T& container, const DELIMITER &) {
+    DELIMITER delim;
     print_iterator_helper(return_has_const_iterator(container), os, container, delim);
     os << std::endl;
 }

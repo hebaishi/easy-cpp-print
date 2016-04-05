@@ -74,8 +74,7 @@ struct custom_delimiter{
 
 int main(int argc, char const *argv[]) {
     set <int> int_set = {1,2,3,3,7,5};
-    custom_delimiter custom;
-    std::cerr << "int_set "; print_line(std::cerr, int_set, custom);
+    std::cerr << "int_set "; print_line(std::cerr, int_set, custom_delimiter());
     return 0;
 }
 ```
