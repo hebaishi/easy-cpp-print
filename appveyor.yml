@@ -20,9 +20,9 @@ before_build:
   - curl -L -o boost.7z "http://netcologne.dl.sourceforge.net/project/boost/boost/1.60.0/boost_1_60_0.7z" 2> NUL 1> NUL
   - 7z -aoa x boost.7z > NUL
   - cd boost_1_60_0
-  - move boost ..
   - bootstrap.bat
   - b2 address-model=64 toolset=msvc architecture=x86 --with-test link=static --prefix=c:\projects\easy-cpp-print install
+  - move boost ..
   - cd ../..
   - echo Running cmake...
   - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_TESTS=ON
