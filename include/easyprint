@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <tuple>
 #include <utility>
+#include <string>
 
 struct FIRST_DELIMITER{};
 struct ELEMENT_DELIMITER{};
