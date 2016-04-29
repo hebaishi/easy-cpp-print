@@ -1,4 +1,5 @@
 #ifdef TEST_INCLUDED
+#define BOOST_TEST_MAIN Easyprint_tests
 #include <boost/test/included/unit_test.hpp>
 #else
 #define BOOST_TEST_MODULE Easyprint_default_tests
