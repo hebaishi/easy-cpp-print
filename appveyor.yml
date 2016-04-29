@@ -17,9 +17,9 @@ before_build:
   - echo Downloading boost...
   - cd c:\projects\easy-cpp-print
   - cd include
-  - curl -L -o boost.7z "http://vorboss.dl.sourceforge.net/project/boost/boost/1.60.0/boost_1_60_0.7z" 2> NUL 1> NUL
+  - curl -L -o boost.7z "http://netix.dl.sourceforge.net/project/boost/boost/1.46.0/boost_1_46_0.7z" 2> NUL 1> NUL
   - 7z -aoa x boost.7z > NUL
-  - cd boost_1_60_0
+  - cd boost_1_46_0
   - move boost ..
   - cd ../..
   - echo Running cmake...
