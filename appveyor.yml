@@ -14,8 +14,9 @@ build:
   project: ALL_BUILD.vcxproj
 
 before_build:
-  - echo Downloading boost...
   - cd c:\projects\easy-cpp-print
+  - mkdir lib
+  - echo Downloading boost...
   - cd include
   - curl -L -o boost.7z "http://netcologne.dl.sourceforge.net/project/boost/boost/1.60.0/boost_1_60_0.7z" 2> NUL 1> NUL
   - 7z -aoa x boost.7z > NUL
