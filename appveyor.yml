@@ -11,9 +11,7 @@ configuration: Release
 install:
 
 build:
-  project:
-    - INSTALL.vcxproj
-    - RUN_TESTS.vcxproj
+  project: ALL_BUILD.vcxproj
 
 before_build:
   - echo Downloading boost...
