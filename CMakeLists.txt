@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 2.6)
 project (easyprint_demo)
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
+link_directories("${PROJECT_SOURCE_DIR}/lib")
 
 set( SRC_DIR "${PROJECT_SOURCE_DIR}/src" )
 
