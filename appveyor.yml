@@ -17,11 +17,11 @@ before_build:
   - echo Downloading boost...
   - cd c:\projects\easy-cpp-print
   - cd include
-  - curl -o boost.7z "http://netassist.dl.sourceforge.net/project/boost/boost/1.60.0/boost_1_60_0.7z"
-  - 7z -aoa x boost.7z > NUL
-  - cd boost_1_60_0
-  - move boost ..
-  - cd ../..
+  - curl -L -o boost.zip "https://github.com/boostorg/test/archive/boost-1.60.0.zip" 2> NUL 1> NUL
+  - 7z -aoa x boost.zip > NUL
+  - cd test-boost-1.60.0/include
+  - move boost ..\..
+  - cd ..\..\..
   - echo Running cmake...
   - cmake -G "Visual Studio 14 2015 Win64" -DBUILD_TESTS=ON
 
