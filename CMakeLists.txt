@@ -11,6 +11,8 @@ endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -ftemplate-depth=512" )
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+  add_definitions(-DTEST_INCLUDED)
 endif()
 
 option(BUILD_TESTS "Build Unit Testing Binaries" OFF)

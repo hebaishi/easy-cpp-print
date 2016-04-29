@@ -1,5 +1,10 @@
 #define BOOST_TEST_MODULE Easyprint_default_tests
+
+#ifdef TEST_INCLUDED
+#include <boost/test/included/unit_test.hpp>
+#else
 #include <boost/test/unit_test.hpp>
+#endif
 
 #include <unordered_map>
 
