@@ -1,3 +1,4 @@
 *.o
 *.h.gch
 bin
+build
