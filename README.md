@@ -19,6 +19,20 @@ Simply include the header file ```easyprint``` and use the implemented print fun
 
 Arbitrary nested containers are also supported, with the exception of tuples of non-trivial types. Nested tuples are allowed, however.
 
+Function signatures:
+```C++
+// Using default delimiters
+template <typename T> void print_line(std::ostream &os, const T &container);
+// Using custom delimiters
+void print_line(std::ostream &os, const T &container, const DELIMITER &)
+
+// Convenience macros that print the variable name followed by its value:
+// Macro for std::cout
+OPRINT_NAME(variable);
+// Macro for std::cerr
+EPRINT_NAME(variable);
+```
+
 #### Example:
 
 ```C++
@@ -31,8 +45,11 @@ using namespace std;
 
 int main(int argc, char const *argv[]) {
     vector <int> int_vec = {1,3,5};
-    cout << "int_vec =";
+    // calling print_line explicitly
+    cout << "My int vector is = ";
     print_line(cout, int_vec);
+    // Using the convenience macro
+    OPRINT_NAME(int_vec);
     return 0;
 }
 ```
@@ -40,6 +57,7 @@ int main(int argc, char const *argv[]) {
 Output:
 
 ```
+My int vector is = [1, 3, 5]
 int_vec = [1, 3, 5]
 ```
 
