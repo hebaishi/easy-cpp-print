@@ -35,7 +35,7 @@ EPRINT_NAME(variable);
 
 #### Example:
 
-```C++
+```cpp
 #include <iostream>
 #include <vector>
 
