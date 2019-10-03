@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <tuple>
 
 namespace easyprint {
@@ -10,10 +11,11 @@ struct default_delimiter {
   static constexpr const char* end_delimiter = "}";
 };
 
-template <size_t I> struct tuple_delimiter_type {
+template <size_t I> struct tuple_delimiter {
   static constexpr const char* value = default_delimiter<int>::element_delimiter;
 };
-template <> struct tuple_delimiter_type<0> { static constexpr const char* value = default_delimiter<int>::start_delimiter; };
+
+template <> struct tuple_delimiter<0> { static constexpr const char* value = default_delimiter<int>::start_delimiter; };
 
 template <typename T> struct is_tuple { static const bool value = false; };
 
@@ -66,7 +68,7 @@ print_tuple(std::ostream &os, const std::tuple<Targs...> &tup) {
 template <size_t I, typename... Targs>
 typename std::enable_if<(I < sizeof...(Targs)), void>::type
 print_tuple(std::ostream &os, const std::tuple<Targs...> &tup) {
-  os << tuple_delimiter_type<I>::value;
+  os << tuple_delimiter<I>::value;
   auto val = std::get<I>(tup);
   print_tuple<0>(os, val);
   print_tuple<I + 1>(os, tup);
@@ -92,7 +94,6 @@ void print_iterator_helper(std::false_type, std::ostream &os,
 template <typename... Targs>
 void print_iterator_helper(std::false_type, std::ostream &os,
                            const std::tuple<Targs...> &cont) {
-  os << default_delimiter<decltype(cont)>::start_delimiter;
   print_tuple<0>(os, cont);
 }
 
@@ -113,14 +114,16 @@ void print_iterator_helper(std::true_type, std::ostream &os, const T &cont) {
 }
 
 // User-facing functions
-template <typename T> void print(std::ostream &os, const T &container) {
-  print_iterator_helper(is_const_iterable_v<T>(), os, container);
-  os << '\n';
+template <typename T>
+std::string stringify(const T &container) {
+  std::stringstream ss;
+  print_iterator_helper(is_const_iterable_v<T>(), ss, container);
+  return ss.str();
 }
 
 template <typename T>
 void print(const T &container) {
-  print(std::cout, container);
+  std::cout << Stringify(container);
 }
 
 }  // namespace easyprint
