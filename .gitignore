@@ -2,3 +2,4 @@
 *.h.gch
 bin
 build
+CMakeLists.txt.user

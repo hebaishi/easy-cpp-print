@@ -1,11 +1,6 @@
 cmake_minimum_required (VERSION 2.6)
 project (easyprint_demo)
 
-include_directories("${PROJECT_SOURCE_DIR}/include")
-link_directories("${PROJECT_SOURCE_DIR}/lib")
-
-set( SRC_DIR "${PROJECT_SOURCE_DIR}/src" )
-
 if (UNIX)
 SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -std=c++11" )
 endif()
@@ -16,11 +11,25 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   add_definitions(-DTEST_INCLUDED)
 endif()
 
-option(BUILD_TESTS "Build Unit Testing Binaries" OFF)
+enable_testing()
 
-if (BUILD_TESTS)
-  add_subdirectory(tests)
-endif()
+add_subdirectory(tests)
 
-add_executable(${PROJECT_NAME} ${SRC_DIR}/demo.cpp )
-install (TARGETS ${PROJECT_NAME} DESTINATION bin)
+add_executable(
+  ${PROJECT_NAME}
+  src/demo.cpp
+  include/easyprint.hpp
+)
+
+target_include_directories(
+  ${PROJECT_NAME}
+  PRIVATE
+  include
+)
+
+install (
+  TARGETS
+    ${PROJECT_NAME}
+  DESTINATION
+    bin
+)
