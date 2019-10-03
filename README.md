@@ -1,7 +1,7 @@
 ## easyprint
 [![Build Status](https://travis-ci.org/hebaishi/easy-cpp-print.svg?branch=master)](https://travis-ci.org/hebaishi/easy-cpp-print)
 
-C++11 header to print STL containers. All containers that contain a ```const_iterator``` are supported, as well as ```std::tuple```. Simply include the header file, and use the implemented print function to print your containers:
+C++11 header to print STL containers. All containers that contain a ```const_iterator``` are supported, as well as ```std::tuple```. Simply include the header file, and use the `stringify` function to stringify your containers. A `print` function has also been provided for convenience, which prints to standard output.
 
 CMake is required to compile the supplied test code.
 
@@ -15,22 +15,21 @@ Use CMake-GUI to compile on windows using your compiler of choice.
 
 ### Usage:
 
-Simply include the header file ```easyprint``` and use the implemented print function to print your containers. All containers that contain a ```const_iterator``` are supported. ```std::tuple``` is also supported. The content of the container can be printed to any ```std::ostream```.
+Simply include the header file ```easyprint.hpp``` and use the implemented print function to print your containers. All containers that contain a ```const_iterator``` are supported. ```std::tuple``` is also supported.
 
 Arbitrary nested containers are also supported, with the exception of tuples of non-trivial types. Nested tuples are allowed, however.
 
 Function signatures:
-```C++
-// Using default delimiters
-template <typename T> void print_line(std::ostream &os, const T &container);
-// Using custom delimiters
-void print_line(std::ostream &os, const T &container, const DELIMITER &)
+```cpp
+namespace easyprint {
 
-// Convenience macros that print the variable name followed by its value:
-// Macro for std::cout
-OPRINT_NAME(variable);
-// Macro for std::cerr
-EPRINT_NAME(variable);
+// Stringify any container
+template <typename T> void stringify(const T &container);
+
+// Print container to stdout
+std::string print(const T &container);
+
+}  // namespace easyprint
 ```
 
 #### Example:
@@ -39,17 +38,13 @@ EPRINT_NAME(variable);
 #include <iostream>
 #include <vector>
 
-#include "easyprint"
+#include <easyprint.hpp>
 
-using namespace std;
+using easyprint::stringify;
 
 int main(int argc, char const *argv[]) {
-    vector <int> int_vec = {1,3,5};
-    // calling print_line explicitly
-    cout << "My int vector is = ";
-    print_line(cout, int_vec);
-    // Using the convenience macro
-    OPRINT_NAME(int_vec);
+    std::vector <int> int_vec = {1,3,5};
+    std::cout << "My int vector is = " << stringify(int_vec) << std::endl;
     return 0;
 }
 ```
@@ -57,47 +52,5 @@ int main(int argc, char const *argv[]) {
 Output:
 
 ```
-My int vector is = [1, 3, 5]
-int_vec = [1, 3, 5]
-```
-
-### Output formatting:
-
-|Type   | Output|
-|--------|-----------|
-| Default | ```[1, 2, 3]```|
-|```std::map```, ```std::unordered_map```| ```{(1, 2), (3, 4)}``` |
-|```std::pair``` | ```(1, 2)```|
-|```std::tuple```| ```(1, 2, 3, 4)```|
-|```std::set```| ```{1, 3, 4}```|
-
-### Custom delimiters
-
-You may also use custom delimiters:
-
-```C++
-#include <iostream>
-#include <set>
-
-#include "easyprint"
-
-using namespace std;
-
-// Custom delimiter for set
-struct custom_delimiter{
-    template<typename T> static std::string get_start_delim(std::set<T>) { return std::string("=={"); };
-    template<typename T> static std::string get_elem_delim(std::set<T>) { return std::string(" - "); };
-    template<typename T> static std::string get_end_delim(std::set<T>) { return std::string("}=="); };
-};
-
-int main(int argc, char const *argv[]) {
-    set <int> int_set = {1,2,3,3,7,5};
-    std::cerr << "int_set "; print_line(std::cerr, int_set, custom_delimiter());
-    return 0;
-}
-```
-
-Output:
-```
-int_set =={1 - 2 - 3 - 5 - 7}==
+My int vector is = {1, 3, 5}
 ```
