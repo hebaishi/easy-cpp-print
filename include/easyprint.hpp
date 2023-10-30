@@ -2,6 +2,49 @@
 #include <sstream>
 #include <tuple>
 
+#ifdef EASY_PRINT_WINDOWS
+
+#include <windows.h>
+
+namespace easyprint_helper
+{
+  inline std::string to_string_A(const std::wstring& string, const bool utf8)
+  {
+    std::string s;
+    s.clear();
+
+    if (string.empty())
+    {
+      return s;
+    }
+
+    int N = (int)string.length();
+
+    if (utf8)
+    {
+      N = WideCharToMultiByte(CP_UTF8, 0, string.c_str(), int(string.length()), NULL, 0, NULL, NULL);
+    }
+
+    N += 1;
+
+    std::unique_ptr<char[]> p(new char[N]);
+    if (p == nullptr)
+    {
+      return s;
+    }
+
+    ZeroMemory(p.get(), N);
+
+    WideCharToMultiByte(utf8 ? CP_UTF8 : CP_ACP, WC_COMPOSITECHECK, string.c_str(), -1, p.get(), N, NULL, NULL);
+
+    s.assign(p.get());
+
+    return s;
+  }
+}
+
+#endif // EASY_PRINT_WINDOWS
+
 namespace easyprint {
 
 template <typename ...Targs>
@@ -51,6 +94,14 @@ void print_iterator_helper(std::true_type, std::ostream &os,
                            const std::basic_string<TChar> &cont) {
   os << "\"" << cont << "\"";
 }
+
+#ifdef EASY_PRINT_WINDOWS
+template <>
+void print_iterator_helper(std::true_type, std::ostream& os,
+  const std::basic_string<wchar_t>& cont) {
+  os << "\"" << easyprint_helper::to_string_A(cont, true) << "\"";
+}
+#endif // EASY_PRINT_WINDOWS
 
 // Functions to recursively print tuples
 template <size_t I, typename T>
