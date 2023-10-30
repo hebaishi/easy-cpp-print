@@ -6,9 +6,9 @@
 
 #include <windows.h>
 
-namespace easyprint_helper
+namespace easyprint_helper // @refer to https://github.com/vic4key/Vutils.git
 {
-  inline std::string to_string_A(const std::wstring& string, const bool utf8)
+  inline std::string __to_string_A(const std::wstring& string, const bool utf8)
   {
     std::string s;
     s.clear();
@@ -41,7 +41,41 @@ namespace easyprint_helper
 
     return s;
   }
-}
+
+  inline std::wstring __to_string_W(const std::string& string, const bool utf8)
+  {
+    std::wstring s;
+    s.clear();
+
+    if (string.empty())
+    {
+      return s;
+    }
+
+    int N = (int)string.length();
+
+    if (utf8)
+    {
+      N = MultiByteToWideChar(CP_UTF8, 0, string.c_str(), int(string.length()), NULL, 0);
+    }
+
+    N += 1;
+
+    std::unique_ptr<wchar_t[]> p(new wchar_t[N]);
+    if (p == nullptr)
+    {
+      s.clear();
+    }
+
+    ZeroMemory(p.get(), 2 * N);
+
+    MultiByteToWideChar(utf8 ? CP_UTF8 : CP_ACP, 0, string.c_str(), -1, p.get(), 2 * N);
+
+    s.assign(p.get());
+
+    return s;
+  }
+} // easyprint_helper
 
 #endif // EASY_PRINT_WINDOWS
 
@@ -99,7 +133,7 @@ void print_iterator_helper(std::true_type, std::ostream &os,
 template <>
 void print_iterator_helper(std::true_type, std::ostream& os,
   const std::basic_string<wchar_t>& cont) {
-  os << "\"" << easyprint_helper::to_string_A(cont, true) << "\"";
+  os << "\"" << easyprint_helper::__to_string_A(cont, true) << "\"";
 }
 #endif // EASY_PRINT_WINDOWS
 
@@ -166,15 +200,35 @@ void print_iterator_helper(std::true_type, std::ostream &os, const T &cont) {
 
 // User-facing functions
 template <typename T>
-std::string stringify(const T &container) {
+std::string stringify_A(const T &container) {
   std::stringstream ss;
   print_iterator_helper(is_const_iterable_v<T>(), ss, container);
   return ss.str();
 }
 
 template <typename T>
-void print(const T &container) {
-  std::cout << Stringify(container);
+std::wstring stringify_W(const T& container) {
+  std::stringstream ss;
+  print_iterator_helper(is_const_iterable_v<T>(), ss, container);
+  return easyprint_helper::__to_string_W(ss.str(), true);
 }
+
+template <typename T>
+void print_A(const T &container) {
+  std::cout << stringify_A(container);
+}
+
+template <typename T>
+void print_W(const T& container) {
+  std::wcout << stringify_W(container);
+}
+
+#ifdef _UNICODE
+#define stringify stringify_W
+#define print print_W
+#else // _UNICODE
+#define stringify stringify_A
+#define print print_A
+#endif // _UNICODE
 
 }  // namespace easyprint

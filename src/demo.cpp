@@ -1,13 +1,16 @@
-#include <easyprint.hpp>
-
-#include <iostream>
+﻿#include <iostream>
 #include <set>
 #include <map>
 #include <tuple>
 #include <unordered_map>
 #include <vector>
-
+#include <cassert>
 using namespace std;
+
+#define EASY_PRINT_WINDOWS
+#include <easyprint.hpp>
+using namespace easyprint_helper;
+
 using easyprint::print;
 using easyprint::stringify;
 
@@ -64,6 +67,23 @@ int main(int argc, const char *argv[]) {
   m1[0] = {0,1,2,3,4};
   m2[0] = {6,7,8,9,10};
   std::cout << stringify(m1) << stringify(m2) << std::endl;
+
+  {
+    vector<string> v;
+    v.push_back("anh yÃªu em nhiá»u láº¯m"); // utf-8 string
+    auto temp = stringify_A(v);
+    auto s = __to_string_W(temp, true);
+    assert(s == L"{\"anh yêu em nhiều lắm\"}");
+    print(v);
+  }
+
+  {
+    vector<wstring> v;
+    v.push_back(L"anh yêu em nhiều lắm"); // unicode string
+    auto s = stringify_A(v);
+    assert(s == "{\"anh yÃªu em nhiá»u láº¯m\"}");
+    print(v);
+  }
 
   return 0;
 }
